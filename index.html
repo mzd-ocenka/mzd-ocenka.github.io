@@ -307,6 +307,7 @@ function calc(){
   const cap = capFor(m, A.year);
   let price = cap;
   price -= M.trim[A.trim] || 0;
+  if(A.drive === 'Передний') price -= M.frontDrive || 0;
   const mil = M.mileage.find(x => A.mileage > x.over); if(mil) price -= mil.minus;
   const parts = A.painted.filter(x => x !== 'none');
   const heavy = parts.filter(x => x === 'Крыша' || x === 'Стойки');
