@@ -61,6 +61,10 @@
   .foot{margin-top:28px;color:var(--muted);font-size:12px}
   .err{color:var(--accent2);font-size:14px;margin-top:8px;min-height:20px}
   [hidden]{display:none!important}
+  .survey{margin-top:6px}
+  .price-in{display:flex;align-items:center;gap:10px}
+  .price-in input{flex:1;background:var(--card);color:var(--text);border:1.5px solid var(--line);border-radius:14px;padding:14px;font:inherit;font-size:20px;font-weight:700}
+  .price-in span{color:var(--muted);font-weight:600}
 </style>
 </head>
 <body>
@@ -195,8 +199,37 @@
   <section class="step" data-step="result">
     <div class="tag">Ваша оценка</div>
     <div class="result" id="result"></div>
-    <a class="btn wa" id="waBtn" href="#" target="_blank" rel="noopener">Отправить в WhatsApp и получить точную цену</a>
-    <p class="muted" style="margin-top:10px">Откроется WhatsApp с готовым сообщением — все ответы уже внутри. Фото можно приложить в том же чате.</p>
+
+    <div class="survey" id="sLike">
+      <div class="q">Устраивает такая оценка?</div>
+      <div class="opts two" data-s="liked">
+        <button class="opt" data-sv="yes">Да, устраивает</button><button class="opt" data-sv="no">Нет</button>
+      </div>
+    </div>
+    <div class="survey" id="sPrice" hidden>
+      <div class="q" id="sPriceQ">Какая цена вас бы устроила?</div>
+      <div class="price-in"><input type="text" id="want" inputmode="decimal" placeholder="Например, 11,5"><span>млн ₸</span></div>
+      <p class="muted" style="margin:6px 0 0">Обсудим индивидуально — иногда комплектация или состояние стоят больше, чем видно по анкете.</p>
+    </div>
+    <div class="survey" id="sReady" hidden>
+      <div class="q">Готовы продать автомобиль сейчас?</div>
+      <div class="opts two" data-s="ready">
+        <button class="opt" data-sv="yes">Да</button><button class="opt" data-sv="no">Пока нет</button>
+      </div>
+    </div>
+    <div class="survey" id="sRemind" hidden>
+      <div class="q">Когда вам напомнить о себе?</div>
+      <div class="opts two" data-s="remind">
+        <button class="opt" data-sv="Через месяц">Через месяц</button><button class="opt" data-sv="Через 3 месяца">Через 3 месяца</button>
+        <button class="opt" data-sv="Через полгода">Через полгода</button><button class="opt" data-sv="Через год">Через год</button>
+      </div>
+    </div>
+
+    <div id="sSend" hidden>
+      <p class="lead" id="sendLead" style="margin:18px 0 10px"></p>
+      <a class="btn wa" id="waBtn" href="#" target="_blank" rel="noopener">Написать в WhatsApp</a>
+      <p class="muted" style="margin-top:10px">Откроется WhatsApp с готовым сообщением — все ответы уже внутри. Фото можно приложить в том же чате.</p>
+    </div>
     <button class="btn" id="restart" style="width:100%;margin-top:14px">Оценить другую машину</button>
   </section>
 
@@ -213,6 +246,14 @@ const STEPS = ['start','model','year','trim','paint','damage','history','result'
 const REQUIRED = { model:['model','drive'], year:[], trim:['trim','color'], paint:['painted'],
   damage:['dents','scratches','glass','hoodChips','interior'], history:['airbags','owners','service','kz'] };
 let P = null, i = 0;
+const S = {};   // ответы на финальном экране
+let R = null;   // результат расчёта
+const CODE = (() => {
+  let k = new URLSearchParams(location.search).get('k') || '';
+  k = k.replace(/[^a-z0-9]/gi, '').slice(0, 12).toUpperCase();
+  try{ if(k) sessionStorage.setItem('mzd-k', k); else k = sessionStorage.getItem('mzd-k') || ''; }catch(e){}
+  return k;
+})();
 const A = { painted: [] };
 const $ = id => document.getElementById(id);
 const $$ = (s, r=document) => [...r.querySelectorAll(s)];
@@ -285,6 +326,54 @@ function go(n){
 $('next').onclick = () => go(i + 1);
 $('back').onclick = () => go(i - 1);
 $('restart').onclick = () => { location.hash = ''; location.reload(); };
+
+/* опрос на финальном экране */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-sv]'); if(!b) return;
+  const key = b.parentElement.dataset.s;
+  S[key] = b.dataset.sv;
+  $$('[data-sv]', b.parentElement).forEach(x => x.classList.toggle('on', x === b));
+  if(key === 'ready' && S.ready === 'yes') delete S.remind;
+  flow();
+});
+$('want').oninput = () => { S.want = $('want').value.trim(); flow(); };
+function parseWant(){
+  const v = parseFloat((S.want || '').replace(/\s/g, '').replace(',', '.'));
+  if(!v || v <= 0) return null;
+  return v < 1000 ? Math.round(v * 1e6) : Math.round(v);   // «11,5» = млн, «11500000» = тенге
+}
+function flow(){
+  const hasPrice = R && R.lo;
+  $('sLike').hidden = !hasPrice;
+  const needPrice = hasPrice ? S.liked === 'no' : true;
+  $('sPrice').hidden = !needPrice || (hasPrice && !S.liked);
+  $('sPriceQ').textContent = hasPrice ? 'Какая цена вас бы устроила?' : 'На какую цену вы рассчитываете? (можно пропустить)';
+  const priceDone = hasPrice ? (S.liked === 'yes' || (S.liked === 'no' && parseWant())) : true;
+  $('sReady').hidden = !priceDone;
+  $('sRemind').hidden = !(priceDone && S.ready === 'no');
+  const done = priceDone && (S.ready === 'yes' || (S.ready === 'no' && S.remind));
+  $('sSend').hidden = !done;
+  if(!done) return;
+  $('sendLead').textContent = hasPrice && S.liked === 'no'
+    ? 'Спасибо! Отправьте заявку — обсудим вашу цену индивидуально.'
+    : S.ready === 'yes' ? 'Отлично! Напишите нам — назовём точную цену после короткого осмотра.'
+    : 'Спасибо! Напишите нам — напомним в удобное время.';
+  $('waBtn').href = `https://wa.me/${P.whatsapp}?text=${encodeURIComponent(buildMsg())}`;
+}
+function buildMsg(){
+  const hasPrice = R && R.lo, want = parseWant();
+  const lines = answers().map(([k,v]) => `${k}: ${v}`);
+  const est = R.decline ? 'онлайн-оценка недоступна' : R.inspect ? 'нужен осмотр' : `≈ ${mln(R.lo)}–${mln(R.hi)} млн ₸`;
+  const extra = [
+    `Онлайн-оценка: ${est}`,
+    hasPrice ? `Оценка устраивает: ${S.liked === 'yes' ? 'да' : 'нет'}` : null,
+    want ? `Желаемая цена: ${mln(want)} млн ₸` : null,
+    `Готовность продать сейчас: ${S.ready === 'yes' ? 'да' : 'нет'}`,
+    S.ready === 'no' ? `Напомнить: ${S.remind.toLowerCase()}` : null,
+    CODE ? `Код клиента: ${CODE}` : 'Код клиента: нет (не из базы)'
+  ].filter(Boolean);
+  return 'Здравствуйте! Хочу обсудить продажу автомобиля по онлайн-оценке.\n\n' + lines.join('\n') + '\n\n' + extra.join('\n') + '\n\nФото пришлю в этом чате.';
+}
 
 /* расчёт */
 // потолок цены для года: из maxByYear; старше самого раннего года — минус perYear за каждый год
@@ -361,11 +450,9 @@ function showResult(){
     est = `≈ ${mln(r.lo)}–${mln(r.hi)} млн ₸`;
   }
   $('result').innerHTML = head + `<div class="note"><ul class="summary">${list.map(([k,v])=>`<li>${esc(k)}: ${esc(v)}</li>`).join('')}</ul></div>`;
-  const msg = 'Здравствуйте! Хочу узнать точную цену за свою машину.\n\n' + list.map(([k,v]) => `${k}: ${v}`).join('\n') +
-    `\n\nОнлайн-оценка: ${est}\nФото пришлю в этом чате.`;
-  const btn = $('waBtn');
-  if(P.whatsapp){ btn.href = `https://wa.me/${P.whatsapp}?text=${encodeURIComponent(msg)}`; btn.classList.remove('hidden'); }
-  else { btn.removeAttribute('href'); btn.textContent = 'Номер WhatsApp не настроен'; }
+  R = r; for(const k of Object.keys(S)) delete S[k]; $('want').value = '';
+  $$('[data-sv]').forEach(x => x.classList.remove('on'));
+  flow();
 }
 </script>
 </body>
