@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Оценка Mazda онлайн</title>
+<meta name="description" content="Бесплатная онлайн-оценка Mazda CX-5 и CX-9 за 2 минуты. Узнайте актуальную цену выкупа — ни к чему не обязывает.">
+<meta property="og:title" content="Сколько сейчас стоит ваша Mazda?">
+<meta property="og:description" content="Бесплатная онлайн-оценка CX-5 и CX-9 за 2 минуты — ни к чему не обязывает.">
+<meta name="theme-color" content="#0e0f12">
+<style>
+  :root{
+    --bg:#0e0f12; --card:#17181c; --card2:#1f2126; --text:#f1f2f5; --muted:#9a9ea8; --line:#2b2d33;
+    --accent:#c8182a; --accent2:#e0283b; --ok:#1faa59;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--text)}
+  body{font:16px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;min-height:100vh;
+    background:radial-gradient(900px 600px at 100% -10%,rgba(200,24,42,.35),transparent 60%),var(--bg);background-attachment:fixed}
+  .wrap{max-width:560px;margin:0 auto;padding:20px 16px 120px}
+  button{font:inherit;color:inherit}
+  .tag{color:var(--accent2);font-weight:700;letter-spacing:.2em;font-size:12px;text-transform:uppercase}
+  h1{font-size:34px;line-height:1.08;margin:10px 0 12px;letter-spacing:-.01em}
+  h2{font-size:24px;line-height:1.15;margin:4px 0 6px}
+  .lead{color:#d6d8de;margin:0 0 18px}
+  .muted{color:var(--muted);font-size:14px}
+  .checks{list-style:none;padding:0;margin:16px 0 24px}
+  .checks li{padding-left:30px;position:relative;margin:8px 0}
+  .checks li::before{content:"";position:absolute;left:0;top:3px;width:18px;height:18px;border-radius:50%;background:var(--accent)}
+  .checks li::after{content:"";position:absolute;left:6px;top:7px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .progress{height:4px;background:var(--line);border-radius:2px;margin:6px 0 18px;overflow:hidden}
+  .progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .25s ease}
+  .step{display:none;animation:in .2s ease}
+  .step.on{display:block}
+  @keyframes in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.step{animation:none}.progress i{transition:none}}
+  .q{margin:18px 0 8px;font-weight:600}
+  .opts{display:grid;gap:8px}
+  .opts.two{grid-template-columns:1fr 1fr}
+  .opts.three{grid-template-columns:1fr 1fr 1fr}
+  .opt{background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:14px;text-align:left;cursor:pointer;min-height:52px}
+  .opt small{display:block;color:var(--muted);font-size:13px;margin-top:2px}
+  .opt.on{border-color:var(--accent);background:rgba(200,24,42,.14)}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{background:var(--card);border:1.5px solid var(--line);border-radius:999px;padding:10px 14px;cursor:pointer;font-size:15px}
+  .chip.on{border-color:var(--accent);background:rgba(200,24,42,.14)}
+  select,input[type=number]{width:100%;background:var(--card);color:var(--text);border:1.5px solid var(--line);border-radius:14px;padding:14px;font:inherit;font-size:17px}
+  .nav{position:fixed;left:0;right:0;bottom:0;padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(transparent,var(--bg) 30%)}
+  .nav .in{max-width:560px;margin:0 auto;display:grid;grid-template-columns:auto 1fr;gap:8px}
+  .btn{border:0;border-radius:14px;padding:16px 18px;font-weight:700;font-size:17px;cursor:pointer;background:var(--card2);text-decoration:none;color:var(--text);text-align:center;display:block}
+  .btn.primary{background:var(--accent)}
+  .btn.wa{background:var(--ok);color:#fff}
+  .btn:disabled{opacity:.4;cursor:default}
+  .btn:active:not(:disabled){transform:scale(.98)}
+  .result{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:20px;margin:14px 0}
+  .price{font-size:36px;font-weight:800;letter-spacing:-.01em;line-height:1.1;margin:6px 0}
+  .summary{font-size:14px;color:#cfd2d8;margin:0;padding-left:18px}
+  .summary li{margin:3px 0}
+  .note{background:var(--card2);border-radius:14px;padding:12px 14px;font-size:14px;color:#d6d8de;margin-top:12px}
+  .foot{margin-top:28px;color:var(--muted);font-size:12px}
+  .err{color:var(--accent2);font-size:14px;margin-top:8px;min-height:20px}
+  [hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="progress" id="prog" hidden><i></i></div>
+
+  <!-- 0. Старт -->
+  <section class="step on" data-step="start">
+    <div class="tag">Выкуп Mazda</div>
+    <h1>Сколько сейчас стоит ваша Mazda?</h1>
+    <p class="lead">Ответьте на несколько вопросов — и сразу увидите ориентировочную цену выкупа по текущему рынку.</p>
+    <ul class="checks">
+      <li>Бесплатно, 2 минуты</li>
+      <li>Ни к чему не обязывает</li>
+      <li>Сначала цена — решение за вами</li>
+    </ul>
+    <p class="muted">Оцениваем Mazda CX-5 и CX-9 2017 года и новее.</p>
+  </section>
+
+  <!-- 1. Модель -->
+  <section class="step" data-step="model">
+    <h2>Какая у вас Mazda?</h2>
+    <div class="opts" data-key="model">
+      <button class="opt" data-v="cx5_25">Mazda CX-5 2.5<small>бензин 2.5 л</small></button>
+      <button class="opt" data-v="cx5_20">Mazda CX-5 2.0<small>бензин 2.0 л</small></button>
+      <button class="opt" data-v="cx9">Mazda CX-9 2.5<small>бензин 2.5 турбо</small></button>
+      <button class="opt" data-v="other">Другая модель</button>
+    </div>
+    <div class="q">Привод</div>
+    <div class="opts two" data-key="drive">
+      <button class="opt" data-v="Полный">Полный</button>
+      <button class="opt" data-v="Передний">Передний</button>
+    </div>
+  </section>
+
+  <!-- 2. Год и пробег -->
+  <section class="step" data-step="year">
+    <h2>Год и пробег</h2>
+    <div class="q">Год выпуска</div>
+    <select id="year"></select>
+    <div class="q">Пробег, км</div>
+    <input type="number" id="mileage" inputmode="numeric" min="0" max="999999" placeholder="Например, 85000">
+    <div class="err" id="yearErr"></div>
+  </section>
+
+  <!-- 3. Комплектация и цвет -->
+  <section class="step" data-step="trim">
+    <h2>Комплектация и цвет</h2>
+    <div class="opts" data-key="trim" id="trimOpts"></div>
+    <div class="q">Цвет</div>
+    <div class="chips" data-key="color">
+      <button class="chip" data-v="Белый">Белый</button>
+      <button class="chip" data-v="Чёрный">Чёрный</button>
+      <button class="chip" data-v="Серый">Серый</button>
+      <button class="chip" data-v="Серебристый">Серебристый</button>
+      <button class="chip" data-v="Красный">Красный</button>
+      <button class="chip" data-v="Синий">Синий</button>
+      <button class="chip" data-v="Другой">Другой</button>
+    </div>
+  </section>
+
+  <!-- 4. Окрасы -->
+  <section class="step" data-step="paint">
+    <h2>Окрашенные детали</h2>
+    <p class="muted">Отметьте детали, которые перекрашивались. Честные ответы — точнее оценка.</p>
+    <div class="chips" data-key="painted" data-multi>
+      <button class="chip" data-v="none">Ничего не красилось</button>
+      <button class="chip" data-v="Капот">Капот</button>
+      <button class="chip" data-v="Передний бампер">Передний бампер</button>
+      <button class="chip" data-v="Задний бампер">Задний бампер</button>
+      <button class="chip" data-v="Переднее левое крыло">Переднее левое крыло</button>
+      <button class="chip" data-v="Переднее правое крыло">Переднее правое крыло</button>
+      <button class="chip" data-v="Передняя левая дверь">Передняя левая дверь</button>
+      <button class="chip" data-v="Передняя правая дверь">Передняя правая дверь</button>
+      <button class="chip" data-v="Задняя левая дверь">Задняя левая дверь</button>
+      <button class="chip" data-v="Задняя правая дверь">Задняя правая дверь</button>
+      <button class="chip" data-v="Заднее левое крыло">Заднее левое крыло</button>
+      <button class="chip" data-v="Заднее правое крыло">Заднее правое крыло</button>
+      <button class="chip" data-v="Крышка багажника">Крышка багажника</button>
+      <button class="chip" data-v="Крыша" data-heavy>Крыша</button>
+      <button class="chip" data-v="Стойки" data-heavy>Стойки</button>
+    </div>
+  </section>
+
+  <!-- 5. Повреждения -->
+  <section class="step" data-step="damage">
+    <h2>Повреждения</h2>
+    <div class="q">Вмятины (без покраса)</div>
+    <div class="opts three" data-key="dents">
+      <button class="opt" data-v="0">Нет</button><button class="opt" data-v="1">1–2</button><button class="opt" data-v="3">3 и больше</button>
+    </div>
+    <div class="q">Царапины</div>
+    <div class="opts three" data-key="scratches">
+      <button class="opt" data-v="none">Нет</button><button class="opt" data-v="minor">Мелкие</button><button class="opt" data-v="deep">Глубокие</button>
+    </div>
+    <div class="q">Лобовое стекло</div>
+    <div class="opts three" data-key="glass">
+      <button class="opt" data-v="none">Целое</button><button class="opt" data-v="chip">Скол</button><button class="opt" data-v="crack">Трещина</button>
+    </div>
+    <div class="q">Сколы на капоте</div>
+    <div class="opts three" data-key="hoodChips">
+      <button class="opt" data-v="none">Нет</button><button class="opt" data-v="few">Немного</button><button class="opt" data-v="many">Много</button>
+    </div>
+    <div class="q">Салон</div>
+    <div class="opts two" data-key="interior">
+      <button class="opt" data-v="good">Хорошее состояние</button><button class="opt" data-v="worn">Потёртости, прожоги</button>
+    </div>
+  </section>
+
+  <!-- 6. История -->
+  <section class="step" data-step="history">
+    <h2>История машины</h2>
+    <div class="q">Были ДТП со срабатыванием подушек?</div>
+    <div class="opts two" data-key="airbags">
+      <button class="opt" data-v="no">Нет</button><button class="opt" data-v="yes">Да</button>
+    </div>
+    <div class="q">Сколько владельцев по документам?</div>
+    <div class="opts three" data-key="owners">
+      <button class="opt" data-v="1">1</button><button class="opt" data-v="2">2</button><button class="opt" data-v="3">3 и больше</button>
+    </div>
+    <div class="q">Обслуживалась у официального дилера?</div>
+    <div class="opts two" data-key="service">
+      <button class="opt" data-v="yes">Да, есть история</button><button class="opt" data-v="no">Нет / не знаю</button>
+    </div>
+    <div class="q">Машина стоит на учёте в Казахстане?</div>
+    <div class="opts two" data-key="kz">
+      <button class="opt" data-v="yes">Да</button><button class="opt" data-v="no">Нет</button>
+    </div>
+  </section>
+
+  <!-- 7. Результат -->
+  <section class="step" data-step="result">
+    <div class="tag">Ваша оценка</div>
+    <div class="result" id="result"></div>
+    <a class="btn wa" id="waBtn" href="#" target="_blank" rel="noopener">Отправить в WhatsApp и получить точную цену</a>
+    <p class="muted" style="margin-top:10px">Откроется WhatsApp с готовым сообщением — все ответы уже внутри. Фото можно приложить в том же чате.</p>
+    <button class="btn" id="restart" style="width:100%;margin-top:14px">Оценить другую машину</button>
+  </section>
+
+  <p class="foot">Оценка ориентировочная и не является офертой. Итоговая цена — после осмотра. Ваши ответы никуда не сохраняются, пока вы сами не отправите их в WhatsApp.</p>
+</div>
+
+<div class="nav"><div class="in">
+  <button class="btn" id="back" hidden>Назад</button>
+  <button class="btn primary" id="next" style="grid-column:1/-1">Узнать цену</button>
+</div></div>
+
+<script>
+const STEPS = ['start','model','year','trim','paint','damage','history','result'];
+const REQUIRED = { model:['model','drive'], year:[], trim:['trim','color'], paint:['painted'],
+  damage:['dents','scratches','glass','hoodChips','interior'], history:['airbags','owners','service','kz'] };
+let P = null, i = 0;
+const A = { painted: [] };
+const $ = id => document.getElementById(id);
+const $$ = (s, r=document) => [...r.querySelectorAll(s)];
+const mln = n => (Math.round(n/100000)/10).toLocaleString('ru-RU', {minimumFractionDigits:1, maximumFractionDigits:1});
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+fetch('prices.json', {cache:'no-store'}).then(r => r.json()).then(p => { P = p; initYears(); }).catch(() => {
+  $('next').disabled = true; document.querySelector('.lead').textContent = 'Не удалось загрузить цены. Обновите страницу.';
+});
+
+function initYears(){
+  const now = new Date().getFullYear();
+  let h = '<option value="">Выберите год</option>';
+  for(let y = now; y >= P.minYear; y--) h += `<option value="${y}">${y}</option>`;
+  h += `<option value="${P.minYear - 1}">${P.minYear - 1} или раньше</option>`;
+  $('year').innerHTML = h;
+}
+
+/* выбор вариантов */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-v]'); if(!b) return;
+  const box = b.parentElement, key = box.dataset.key; if(!key) return;
+  if(box.hasAttribute('data-multi')){
+    const v = b.dataset.v;
+    if(v === 'none') A.painted = ['none'];
+    else { A.painted = A.painted.filter(x => x !== 'none'); A.painted = A.painted.includes(v) ? A.painted.filter(x => x !== v) : [...A.painted, v]; }
+    $$('[data-v]', box).forEach(x => x.classList.toggle('on', A.painted.includes(x.dataset.v)));
+  } else {
+    A[key] = b.dataset.v;
+    $$('[data-v]', box).forEach(x => x.classList.toggle('on', x === b));
+  }
+  update();
+});
+$('year').onchange = () => { A.year = +$('year').value || null; update(); };
+$('mileage').oninput = () => { A.mileage = $('mileage').value === '' ? null : +$('mileage').value; update(); };
+
+function stepValid(){
+  const s = STEPS[i];
+  if(s === 'year') return !!A.year && A.mileage != null && A.mileage >= 0;
+  if(s === 'paint') return A.painted.length > 0;
+  return (REQUIRED[s] || []).every(k => A[k] != null);
+}
+function update(){
+  const s = STEPS[i];
+  $('next').disabled = s !== 'start' && s !== 'result' && !stepValid();
+  $('yearErr').textContent = '';
+}
+
+function renderTrims(){
+  const m = P.models[A.model];
+  const t = m ? m.trims : {base:'',mid:'',top:''};
+  $('trimOpts').innerHTML = [['base','Базовая',t.base],['mid','Средняя',t.mid],['top','Топовая',t.top],['unknown','Не знаю','']]
+    .map(([v,l,d]) => `<button class="opt ${A.trim===v?'on':''}" data-v="${v}">${l}${d?`<small>${esc(d)}</small>`:''}</button>`).join('');
+}
+
+function go(n){
+  i = Math.max(0, Math.min(STEPS.length-1, n));
+  const s = STEPS[i];
+  $$('.step').forEach(x => x.classList.toggle('on', x.dataset.step === s));
+  $('prog').hidden = s === 'start';
+  $('prog').firstElementChild.style.width = (i / (STEPS.length-1) * 100) + '%';
+  $('back').hidden = s === 'start';
+  $('next').style.gridColumn = s === 'start' ? '1/-1' : 'auto';
+  $('next').textContent = s === 'start' ? 'Узнать цену' : s === 'history' ? 'Показать оценку' : 'Дальше';
+  $('next').parentElement.parentElement.hidden = s === 'result';
+  if(s === 'trim') renderTrims();
+  if(s === 'result') showResult();
+  update(); window.scrollTo(0, 0);
+}
+$('next').onclick = () => go(i + 1);
+$('back').onclick = () => go(i - 1);
+$('restart').onclick = () => { location.hash = ''; location.reload(); };
+
+/* расчёт */
+// потолок цены для года: из maxByYear; старше самого раннего года — минус perYear за каждый год
+function capFor(m, year){
+  const ys = Object.keys(m.maxByYear).map(Number).sort((a,b)=>a-b);
+  if(m.maxByYear[year]) return m.maxByYear[year];
+  if(year < ys[0]) return m.maxByYear[ys[0]] - (ys[0] - year) * P.minus.perYear;
+  const lower = ys.filter(y => y < year).pop();
+  return m.maxByYear[lower];
+}
+function calc(){
+  const m = P.models[A.model], M = P.minus;
+  const reasons = [];
+  if(A.model === 'other') reasons.push('другая модель');
+  if(A.year < P.minYear) reasons.push(`год выпуска раньше ${P.minYear}`);
+  if(A.airbags === 'yes') reasons.push('ДТП со срабатыванием подушек');
+  if(A.kz === 'no') reasons.push('машина не на учёте в Казахстане');
+  if(reasons.length) return { decline: reasons };
+
+  const cap = capFor(m, A.year);
+  let price = cap;
+  price -= M.trim[A.trim] || 0;
+  const mil = M.mileage.find(x => A.mileage > x.over); if(mil) price -= mil.minus;
+  const parts = A.painted.filter(x => x !== 'none');
+  const heavy = parts.filter(x => x === 'Крыша' || x === 'Стойки');
+  price -= (parts.length - heavy.length) * M.paintedPart + heavy.length * M.paintedRoofOrPillar;
+  price -= (+A.dents) * M.dent;
+  price -= M.scratches[A.scratches] + M.glass[A.glass] + M.hoodChips[A.hoodChips] + M.interior[A.interior];
+  if(A.owners === '3') price -= M.owners3plus;
+  if(A.service === 'no') price -= M.noService;
+
+  if(price < m.min) return { inspect: true, price };
+  let hi = Math.round((price + P.rangeHalf) / 100000) * 100000;
+  let lo = Math.round((price - P.rangeHalf) / 100000) * 100000;
+  if(hi > cap){ lo -= hi - cap; hi = cap; }
+  return { lo, hi, price };
+}
+
+const LBL = {
+  trim:{base:'базовая',mid:'средняя',top:'топовая',unknown:'не знаю'},
+  dents:{'0':'нет','1':'1–2','3':'3 и больше'}, scratches:{none:'нет',minor:'мелкие',deep:'глубокие'},
+  glass:{none:'целое',chip:'скол',crack:'трещина'}, hoodChips:{none:'нет',few:'немного',many:'много'},
+  interior:{good:'хорошее',worn:'потёртости'}, airbags:{no:'нет',yes:'да'}, service:{yes:'есть',no:'нет / не знаю'},
+  owners:{'1':'1','2':'2','3':'3 и больше'}, kz:{yes:'да',no:'нет'}
+};
+function answers(){
+  const m = P.models[A.model];
+  const parts = A.painted.filter(x => x !== 'none');
+  return [
+    ['Модель', (m ? m.title : 'другая модель Mazda') + ', ' + A.drive.toLowerCase() + ' привод'],
+    ['Год', A.year < P.minYear ? `${A.year} или раньше` : A.year],
+    ['Пробег', A.mileage.toLocaleString('ru-RU') + ' км'],
+    ['Комплектация', LBL.trim[A.trim]], ['Цвет', A.color],
+    ['Окрашено', parts.length ? parts.join(', ') : 'ничего'],
+    ['Вмятины', LBL.dents[A.dents]], ['Царапины', LBL.scratches[A.scratches]],
+    ['Лобовое', LBL.glass[A.glass]], ['Сколы на капоте', LBL.hoodChips[A.hoodChips]], ['Салон', LBL.interior[A.interior]],
+    ['ДТП с подушками', LBL.airbags[A.airbags]], ['Владельцев', LBL.owners[A.owners]],
+    ['Сервисная история', LBL.service[A.service]], ['На учёте в РК', LBL.kz[A.kz]]
+  ];
+}
+function showResult(){
+  const r = calc(), list = answers();
+  let head, est;
+  if(r.decline){
+    head = `<h2>Спасибо!</h2><p>Сейчас мы активно выкупаем Mazda CX-5 и CX-9 от ${P.minYear} года без серьёзных ДТП. По вашей машине (${esc(r.decline.join(', '))}) онлайн-оценку дать не можем — но можете отправить заявку, посмотрим индивидуально.</p>`;
+    est = 'онлайн-оценка недоступна';
+  } else if(r.inspect){
+    head = `<h2>Цену назовём после осмотра</h2><p>По вашим ответам машине нужен живой осмотр — так цена будет честнее. Отправьте заявку, и мы свяжемся с вами.</p>`;
+    est = 'нужен осмотр';
+  } else {
+    head = `<div class="muted">Ориентировочная цена выкупа</div><div class="price">≈ ${mln(r.lo)}–${mln(r.hi)} млн ₸</div>
+      <div class="muted">Точная цена — после осмотра</div>`;
+    est = `≈ ${mln(r.lo)}–${mln(r.hi)} млн ₸`;
+  }
+  $('result').innerHTML = head + `<div class="note"><ul class="summary">${list.map(([k,v])=>`<li>${esc(k)}: ${esc(v)}</li>`).join('')}</ul></div>`;
+  const msg = 'Здравствуйте! Хочу узнать точную цену за свою машину.\n\n' + list.map(([k,v]) => `${k}: ${v}`).join('\n') +
+    `\n\nОнлайн-оценка: ${est}\nФото пришлю в этом чате.`;
+  const btn = $('waBtn');
+  if(P.whatsapp){ btn.href = `https://wa.me/${P.whatsapp}?text=${encodeURIComponent(msg)}`; btn.classList.remove('hidden'); }
+  else { btn.removeAttribute('href'); btn.textContent = 'Номер WhatsApp не настроен'; }
+}
+</script>
+</body>
+</html>

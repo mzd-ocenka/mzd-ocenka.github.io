@@ -1,0 +1,89 @@
+{
+  "_README": "Цены в тенге. maxByYear — потолок цены для машины этого года в топе и без замечаний. Для года старше самого раннего в списке: минус perYear за каждый год. Для года новее — берётся самый свежий потолок.",
+  "whatsapp": "",
+  "minYear": 2017,
+  "rangeHalf": 500000,
+  "models": {
+    "cx5_25": {
+      "title": "Mazda CX-5 2.5",
+      "maxByYear": {
+        "2019": 12000000,
+        "2020": 12500000,
+        "2021": 12500000
+      },
+      "min": 10000000,
+      "trims": {
+        "base": "Drive, Active",
+        "mid": "Active+, Supreme",
+        "top": "Supreme+, Executive"
+      }
+    },
+    "cx5_20": {
+      "title": "Mazda CX-5 2.0",
+      "maxByYear": {
+        "2021": 10000000
+      },
+      "min": 8000000,
+      "trims": {
+        "base": "Drive, Active",
+        "mid": "Active+, Supreme",
+        "top": "Supreme+"
+      }
+    },
+    "cx9": {
+      "title": "Mazda CX-9 2.5",
+      "maxByYear": {
+        "2021": 13000000
+      },
+      "min": 10500000,
+      "trims": {
+        "base": "Active",
+        "mid": "Supreme",
+        "top": "Exclusive"
+      }
+    }
+  },
+  "minus": {
+    "perYear": 300000,
+    "trim": {
+      "base": 500000,
+      "mid": 250000,
+      "top": 0,
+      "unknown": 250000
+    },
+    "mileage": [
+      {
+        "over": 150000,
+        "minus": 500000
+      },
+      {
+        "over": 100000,
+        "minus": 200000
+      }
+    ],
+    "paintedPart": 100000,
+    "paintedRoofOrPillar": 400000,
+    "dent": 50000,
+    "scratches": {
+      "none": 0,
+      "minor": 30000,
+      "deep": 100000
+    },
+    "glass": {
+      "none": 0,
+      "chip": 80000,
+      "crack": 150000
+    },
+    "hoodChips": {
+      "none": 0,
+      "few": 30000,
+      "many": 100000
+    },
+    "interior": {
+      "good": 0,
+      "worn": 100000
+    },
+    "owners3plus": 100000,
+    "noService": 100000
+  }
+}
