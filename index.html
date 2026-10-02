@@ -64,6 +64,7 @@
   .survey{margin-top:6px}
   .price-in{display:flex;align-items:center;gap:10px}
   .price-in input{flex:1;background:var(--card);color:var(--text);border:1.5px solid var(--line);border-radius:14px;padding:14px;font:inherit;font-size:20px;font-weight:700}
+  .phone-in{width:100%;background:var(--card);color:var(--text);border:1.5px solid var(--line);border-radius:14px;padding:14px;font:inherit;font-size:18px}
   .price-in span{color:var(--muted);font-weight:600}
 </style>
 </head>
@@ -227,13 +228,16 @@
 
     <div id="sSend" hidden>
       <p class="lead" id="sendLead" style="margin:18px 0 10px"></p>
+      <div class="q" style="margin-top:0">Ваш номер телефона <span class="muted">(необязательно)</span></div>
+      <input type="tel" id="phone" class="phone-in" inputmode="tel" autocomplete="tel" placeholder="+7 7__ ___ __ __">
+      <p class="muted" style="margin:6px 0 14px">Если не успеете написать — свяжемся сами. Номер нужен только для связи по вашей машине.</p>
       <a class="btn wa" id="waBtn" href="#" target="_blank" rel="noopener">Написать в WhatsApp</a>
       <p class="muted" style="margin-top:10px">Откроется WhatsApp с готовым сообщением — все ответы уже внутри. Фото можно приложить в том же чате.</p>
     </div>
     <button class="btn" id="restart" style="width:100%;margin-top:14px">Оценить другую машину</button>
   </section>
 
-  <p class="foot">Оценка ориентировочная и не является офертой. Итоговая цена — после осмотра. Ваши ответы никуда не сохраняются, пока вы сами не отправите их в WhatsApp.</p>
+  <p class="foot">Оценка ориентировочная и не является офертой. Итоговая цена — после осмотра. Ответы анкеты сохраняются у нас, чтобы подготовить точную цену. Номер телефона — только если вы сами его укажете.</p>
 </div>
 
 <div class="nav"><div class="in">
@@ -338,6 +342,14 @@ document.addEventListener('click', e => {
   flow();
 });
 $('want').oninput = () => { S.want = $('want').value.trim(); flow(); };
+$('phone').oninput = () => track();
+// телефон → +7XXXXXXXXXX; если цифр мало — пусто
+function phone(){
+  let d = ($('phone').value || '').replace(/\D/g, '');
+  if(d.length === 11 && d[0] === '8') d = '7' + d.slice(1);
+  if(d.length === 10) d = '7' + d;
+  return d.length === 11 ? '+' + d : '';
+}
 function parseWant(){
   const v = parseFloat((S.want || '').replace(/\s/g, '').replace(',', '.'));
   if(!v || v <= 0) return null;
@@ -371,7 +383,7 @@ function track(now){
     const want = parseWant(), hasPrice = R && R.lo;
     const d = Object.fromEntries(answers());
     Object.assign(d, {
-      'Сессия': SID, 'Код клиента': CODE, 'Из базы': CODE ? 'да' : 'нет',
+      'Сессия': SID, 'Код клиента': CODE, 'Из базы': CODE ? 'да' : 'нет', 'Телефон': phone(),
       'Онлайн-оценка': R.decline ? 'не выкупаем: ' + R.decline.join(', ') : R.inspect ? 'нужен осмотр' : `${mln(R.lo)}–${mln(R.hi)} млн`,
       'Оценка устраивает': hasPrice ? ({yes:'да',no:'нет'}[S.liked] || '') : '',
       'Желаемая цена, млн': want ? mln(want) : '',
@@ -397,7 +409,8 @@ function buildMsg(){
     want ? `Желаемая цена: ${mln(want)} млн ₸` : null,
     `Готовность продать сейчас: ${S.ready === 'yes' ? 'да' : 'нет'}`,
     S.ready === 'no' ? `Напомнить: ${S.remind.toLowerCase()}` : null,
-    CODE ? `Код клиента: ${CODE}` : 'Код клиента: нет (не из базы)'
+    CODE ? `Код клиента: ${CODE}` : 'Код клиента: нет (не из базы)',
+    `Номер анкеты: ${SID}`
   ].filter(Boolean);
   return 'Здравствуйте! Хочу обсудить продажу автомобиля по онлайн-оценке.\n\n' + lines.join('\n') + '\n\n' + extra.join('\n') + '\n\nФото пришлю в этом чате.';
 }
@@ -478,7 +491,8 @@ function showResult(){
   }
   $('result').innerHTML = head + `<div class="note"><ul class="summary">${list.map(([k,v])=>`<li>${esc(k)}: ${esc(v)}</li>`).join('')}</ul></div>`;
   R = r; for(const k of Object.keys(S)) delete S[k]; $('want').value = '';
-  SID = Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2,'0')).join(''); clicked = false;
+  const AB = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  SID = Array.from(crypto.getRandomValues(new Uint8Array(8)), b => AB[b % AB.length]).join(''); clicked = false; $('phone').value = '';
   $$('[data-sv]').forEach(x => x.classList.remove('on'));
   flow();
 }
