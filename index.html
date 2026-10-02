@@ -248,6 +248,7 @@ const REQUIRED = { model:['model','drive'], year:[], trim:['trim','color'], pain
 let P = null, i = 0;
 const S = {};   // ответы на финальном экране
 let R = null;   // результат расчёта
+let SID = '', clicked = false, trackTimer = null;
 const CODE = (() => {
   let k = new URLSearchParams(location.search).get('k') || '';
   k = k.replace(/[^a-z0-9]/gi, '').slice(0, 12).toUpperCase();
@@ -344,6 +345,7 @@ function parseWant(){
 }
 function flow(){
   const hasPrice = R && R.lo;
+  track();
   $('sLike').hidden = !hasPrice;
   const needPrice = hasPrice ? S.liked === 'no' : true;
   $('sPrice').hidden = !needPrice || (hasPrice && !S.liked);
@@ -360,6 +362,31 @@ function flow(){
     : 'Спасибо! Напишите нам — напомним в удобное время.';
   $('waBtn').href = `https://wa.me/${P.whatsapp}?text=${encodeURIComponent(buildMsg())}`;
 }
+
+/* запись анкеты в Google Таблицу: без имён и телефонов, только код клиента и ответы */
+function track(now){
+  if(!P || !P.sheetUrl || !SID) return;
+  clearTimeout(trackTimer);
+  const send = () => {
+    const want = parseWant(), hasPrice = R && R.lo;
+    const d = Object.fromEntries(answers());
+    Object.assign(d, {
+      'Сессия': SID, 'Код клиента': CODE, 'Из базы': CODE ? 'да' : 'нет',
+      'Онлайн-оценка': R.decline ? 'не выкупаем: ' + R.decline.join(', ') : R.inspect ? 'нужен осмотр' : `${mln(R.lo)}–${mln(R.hi)} млн`,
+      'Оценка устраивает': hasPrice ? ({yes:'да',no:'нет'}[S.liked] || '') : '',
+      'Желаемая цена, млн': want ? mln(want) : '',
+      'Готов продать сейчас': {yes:'да',no:'нет'}[S.ready] || '',
+      'Напомнить': S.ready === 'no' ? (S.remind || '') : '',
+      'Нажал WhatsApp': clicked ? 'да' : 'нет'
+    });
+    try{
+      fetch(P.sheetUrl, {method:'POST', mode:'no-cors', keepalive:true,
+        headers:{'Content-Type':'text/plain;charset=utf-8'}, body: JSON.stringify(d)}).catch(()=>{});
+    }catch(e){}
+  };
+  if(now) send(); else trackTimer = setTimeout(send, 1200);
+}
+$('waBtn').addEventListener('click', () => { clicked = true; track(true); });
 function buildMsg(){
   const hasPrice = R && R.lo, want = parseWant();
   const lines = answers().map(([k,v]) => `${k}: ${v}`);
@@ -451,6 +478,7 @@ function showResult(){
   }
   $('result').innerHTML = head + `<div class="note"><ul class="summary">${list.map(([k,v])=>`<li>${esc(k)}: ${esc(v)}</li>`).join('')}</ul></div>`;
   R = r; for(const k of Object.keys(S)) delete S[k]; $('want').value = '';
+  SID = Array.from(crypto.getRandomValues(new Uint8Array(8)), b => b.toString(16).padStart(2,'0')).join(''); clicked = false;
   $$('[data-sv]').forEach(x => x.classList.remove('on'));
   flow();
 }
